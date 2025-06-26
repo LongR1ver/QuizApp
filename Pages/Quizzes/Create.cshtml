@@ -1,0 +1,92 @@
+﻿@page
+@model QuizApp2.Pages.Quizzes.CreateModel
+@{
+    ViewData["Title"] = "Create Quiz";
+}
+
+<h2>Create Quiz</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="QuizVm.Title" class="form-label">Title</label>
+        <input asp-for="QuizVm.Title" class="form-control" />
+        <span asp-validation-for="QuizVm.Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="QuizVm.TimeLimit" class="form-label">Time Limit (minutes)</label>
+        <input asp-for="QuizVm.TimeLimit" class="form-control" />
+    </div>
+
+    <div id="question-list">
+        @for (int i = 0; i < Model.QuizVm.Questions.Count; i++)
+        {
+            <div class="border p-3 mb-3 question-block">
+                <label>Question @(@i + 1)</label>
+                <input asp-for="QuizVm.Questions[@i].Content" class="form-control mb-2" />
+                <span asp-validation-for="QuizVm.Questions[@i].Content" class="text-danger"></span>
+
+                @for (int j = 0; j < Model.QuizVm.Questions[i].AnswerOptions.Count; j++)
+                {
+                    <div class="input-group mb-2">
+                        <input asp-for="QuizVm.Questions[@i].AnswerOptions[@j].Content" class="form-control" />
+                        <div class="input-group-text">
+                            <input asp-for="QuizVm.Questions[@i].AnswerOptions[@j].IsCorrect" class="form-check-input" />
+                            <label class="form-check-label ms-1">Correct</label>
+                        </div>
+                        <span asp-validation-for="QuizVm.Questions[@i].AnswerOptions[@j].Content" class="text-danger ms-2"></span>
+                    </div>
+                }
+
+                <button type="button" class="btn btn-danger remove-question mt-2">Remove Question</button>
+            </div>
+        }
+    </div>
+
+    <button type="button" id="add-question" class="btn btn-outline-primary mb-3">Add Question</button><br />
+
+    <button type="submit" class="btn btn-success">Add</button>
+    <a asp-page="/Quizzes/Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        let questionIndex = @Model.QuizVm.Questions.Count;
+
+        function createAnswerInputs(qIdx) {
+            let html = '';
+            for (let j = 0; j < 4; j++) {
+                html += `
+                    <div class="input-group mb-2">
+                        <input name="QuizVm.Questions[${qIdx}].AnswerOptions[${j}].Content" class="form-control" />
+                        <div class="input-group-text">
+                            <input type="hidden" name="QuizVm.Questions[${qIdx}].AnswerOptions[${j}].IsCorrect" value="false" />
+                            <input type="checkbox" name="QuizVm.Questions[${qIdx}].AnswerOptions[${j}].IsCorrect" value="true" />
+                            <label class="form-check-label ms-1">Correct</label>
+                        </div>
+                    </div>`;
+            }
+            return html;
+        }
+
+        document.getElementById("add-question").addEventListener("click", function () {
+            const container = document.createElement("div");
+            container.classList.add("border", "p-3", "mb-3", "question-block");
+            container.innerHTML = `
+                <label>Question</label>
+                <input name="QuizVm.Questions[${questionIndex}].Content" class="form-control mb-2" />
+                ${createAnswerInputs(questionIndex)}
+                <button type="button" class="btn btn-danger remove-question mt-2">Remove Question</button>
+            `;
+            document.getElementById("question-list").appendChild(container);
+            questionIndex++;
+        });
+
+        document.getElementById("question-list").addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-question")) {
+                e.target.closest(".question-block").remove();
+            }
+        });
+    </script>
+}

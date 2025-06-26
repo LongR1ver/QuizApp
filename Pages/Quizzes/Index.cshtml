@@ -1,0 +1,32 @@
+﻿@page
+@model QuizApp2.Pages.Quizzes.IndexModel
+@{
+    ViewData["Title"] = "All Quizzes";
+}
+
+<h1>Quiz List</h1>
+
+<a class="btn btn-primary mb-3" asp-page="/Quizzes/Create">Create New Quiz</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Time Limit (mins)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var quiz in Model.Quizzes)
+        {
+            <tr>
+                <td>@quiz.Title</td>
+                <td>@quiz.TimeLimit</td>
+                <td>
+                    <a asp-page="/Quizzes/Take" asp-route-id="@quiz.Id" class="btn btn-success btn-sm">Take</a>
+                    <a asp-page="/Quizzes/Edit" asp-route-id="@quiz.Id" class="btn btn-secondary btn-sm">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

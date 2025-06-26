@@ -1,0 +1,54 @@
+﻿@page "{id:int}"
+@model QuizApp2.Pages.Quizzes.EditModel
+@{
+    ViewData["Title"] = "Edit Quiz";
+}
+
+<h2>Edit Quiz</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="QuizVm.Id" />
+
+    <div class="mb-3">
+        <label asp-for="QuizVm.Title" class="form-label">Title</label>
+        <input asp-for="QuizVm.Title" class="form-control" />
+        <span asp-validation-for="QuizVm.Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="QuizVm.TimeLimit" class="form-label">Time Limit (minutes)</label>
+        <input asp-for="QuizVm.TimeLimit" class="form-control" />
+    </div>
+
+    <div id="question-list">
+        @for (int i = 0; i < Model.QuizVm.Questions.Count; i++)
+        {
+            <div class="border p-3 mb-3 question-block">
+                <input type="hidden" asp-for="QuizVm.Questions[@i].Id" />
+                <label>Question @(@i + 1)</label>
+                <input asp-for="QuizVm.Questions[@i].Content" class="form-control mb-2" />
+                <span asp-validation-for="QuizVm.Questions[@i].Content" class="text-danger"></span>
+
+                @for (int j = 0; j < Model.QuizVm.Questions[i].AnswerOptions.Count; j++)
+                {
+                    <div class="input-group mb-2">
+                        <input type="hidden" asp-for="QuizVm.Questions[@i].AnswerOptions[@j].Id" />
+                        <input asp-for="QuizVm.Questions[@i].AnswerOptions[@j].Content" class="form-control" />
+                        <div class="input-group-text">
+                            <input asp-for="QuizVm.Questions[@i].AnswerOptions[@j].IsCorrect" class="form-check-input" />
+                            <label class="form-check-label ms-1">Correct</label>
+                        </div>
+                        <span asp-validation-for="QuizVm.Questions[@i].AnswerOptions[@j].Content" class="text-danger ms-2"></span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-page="/Quizzes/Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

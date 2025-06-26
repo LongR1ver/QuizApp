@@ -1,0 +1,73 @@
+﻿@page
+@model QuizApp2.Pages.Quizzes.TakeModel
+@{
+    ViewData["Title"] = "Take Quiz";
+}
+
+<h2>@Model.Quiz?.Title</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="QuizId" />
+
+    @if (Model.Quiz?.TimeLimit != null)
+    {
+        <div class="alert alert-info">
+            Time remaining: <span id="timer">@Model.Quiz.TimeLimit:00</span> minutes
+        </div>
+    }
+
+    @if (Model.Quiz != null)
+    {
+        int questionIndex = 1;
+
+        foreach (var question in Model.Quiz.Questions)
+        {
+            <div class="mb-4">
+                <strong>@questionIndex: @question.Content</strong>
+                <div>
+                    @foreach (var option in question.AnswerOptions)
+                    {
+                        <div class="form-check">
+                            <input type="radio"
+                                   class="form-check-input"
+                                   name="SelectedAnswers[@question.Id]"
+                                   value="@option.Id"
+                                   id="q@question.Id-a@option.Id" />
+                            <label class="form-check-label" for="q@question.Id-a@option.Id">@option.Content</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            questionIndex++;
+        }
+        <button type="submit" class="btn btn-primary">Submit</button>
+    }
+    else
+    {
+        <p>Quiz not found.</p>
+    }
+</form>
+
+@section Scripts {
+    <script>
+        const timeLimit = @Model.Quiz?.TimeLimit ?? 0;
+        if (timeLimit > 0) {
+            let secondsLeft = timeLimit * 60;
+
+            const timerSpan = document.getElementById("timer");
+
+            const interval = setInterval(() => {
+                const minutes = Math.floor(secondsLeft / 60);
+                const seconds = secondsLeft % 60;
+                timerSpan.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+                secondsLeft--;
+
+                if (secondsLeft < 0) {
+                    clearInterval(interval);
+                    document.querySelector("form").submit();
+                }
+            }, 1000);
+        }
+    </script>
+}

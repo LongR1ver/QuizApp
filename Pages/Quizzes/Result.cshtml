@@ -1,0 +1,54 @@
+﻿@page
+@model QuizApp2.Pages.Quizzes.ResultModel
+@{
+    ViewData["Title"] = "Quiz Result";
+    var quiz = Model.Attempt?.Quiz;
+}
+
+<h2>Quiz Result: @quiz?.Title</h2>
+
+@if (quiz != null && Model.Attempt != null)
+{
+    <div class="alert alert-success">
+        Score: <strong>@Model.Attempt.Score</strong> / @quiz.Questions.Count
+    </div>
+
+    @foreach (var question in quiz.Questions)
+    {
+        var userAnswer = Model.Attempt.QuizAttemptAnswers
+            .FirstOrDefault(qa => qa.SelectedAnswerOption?.QuestionId == question.Id);
+
+        var correctOption = question.AnswerOptions.FirstOrDefault(o => o.IsCorrect);
+        var selectedOption = userAnswer?.SelectedAnswerOption;
+
+        <div class="mb-3 p-3 border rounded">
+            <strong>@question.Content</strong>
+            <ul class="mt-2">
+                @foreach (var option in question.AnswerOptions)
+                {
+                    bool isSelected = selectedOption?.Id == option.Id;
+                    bool isCorrect = option.IsCorrect;
+
+                    string colorClass = "";
+                    if (isSelected && isCorrect) colorClass = "text-success fw-bold";
+                    else if (isSelected && !isCorrect) colorClass = "text-danger fw-bold";
+
+                    <li class="@colorClass">
+                        @option.Content
+                    </li>
+                }
+            </ul>
+
+            @if (selectedOption != null && !selectedOption.IsCorrect)
+            {
+                <div class="text-muted">Correct answer: <span class="text-success">@correctOption?.Content</span></div>
+            }
+        </div>
+    }
+
+    <a asp-page="/Quizzes/Index" class="btn btn-primary mt-3">Back to Quiz List</a>
+}
+else
+{
+    <p>Quiz result not found.</p>
+}
